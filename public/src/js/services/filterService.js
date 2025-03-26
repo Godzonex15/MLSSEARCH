@@ -713,41 +713,82 @@ loadSubdivisions(location) {
 
 
 
-    
+    // Update just the applyFilters method in your FilterService
+// Add this to your filterService.js
 
-    async applyFilters() {
-        if (this.state.isValidating) return;
-        this.state.isValidating = true;
+async applyFilters() {
+    if (this.state.isValidating) return;
+    this.state.isValidating = true;
+
+    const activeFilters = this.getActiveFilters();
     
-        const activeFilters = this.getActiveFilters();
-        
-        // Lista de todos los filtros avanzados (checkboxes)
-        const advancedFilters = [
-            'virtualTour', 'openHouse', 'beachfront', 'oceanView', 
-            'pool', 'cfe', 'furnished', 'garage', 'gated', 
-            'petFriendly', 'newListing', 'priceReduced'
-        ];
-        
-        // Verificar qué filtros avanzados están activos
-        const activeAdvancedFilters = advancedFilters.filter(filter => activeFilters[filter]);
-        const hasAdvancedFilters = activeAdvancedFilters.length > 0;
-        
-        // Si hay un MLS ID, mostramos directamente la propiedad
-        if (activeFilters.propertyId) {
-            try {
-                const property = await ApiService.getProperty(activeFilters.propertyId);
-                if (property) {
-                    PropertyModal.show(activeFilters.propertyId);
-                    this.state.isValidating = false;
-                    return;
-                }
-            } catch (error) {
-                console.error('Error loading property:', error);
-                NotificationService.error('Property not found');
+    // If there's an MLS ID, try to show that property directly
+    if (activeFilters.propertyId) {
+        try {
+            showLoadingOverlay();
+            const property = await ApiService.getProperty(activeFilters.propertyId);
+            hideLoadingOverlay();
+            
+            if (property) {
+                PropertyModal.show(activeFilters.propertyId);
                 this.state.isValidating = false;
                 return;
+            } else {
+                NotificationService.warning('Property not found with that ID', {
+                    title: 'Search Result',
+                    duration: 3000
+                });
             }
+        } catch (error) {
+            console.error('Error loading property:', error);
+            NotificationService.error('Error loading property');
+            hideLoadingOverlay();
+            this.state.isValidating = false;
+            return;
         }
+    }
+
+    // For regular searches
+    showLoadingOverlay();
+    try {
+        console.log('Sending filters to API:', activeFilters);
+        const result = await ApiService.searchProperties(activeFilters);
+        
+        // Ensure we always have an array of properties
+        let properties = result.properties || [];
+        if (!Array.isArray(properties)) {
+            properties = [];
+        }
+        
+        // Update UI with results
+        updateResults(properties);
+        updateMarkers(properties);
+        
+        // Show appropriate notification based on results
+        if (properties.length === 0) {
+            NotificationService.info('No properties found with the selected filters. Try different criteria.', {
+                title: 'No Results',
+                duration: 3000
+            });
+        } else {
+            NotificationService.success(`Found ${properties.length} properties matching your criteria`, {
+                title: 'Search Results',
+                duration: 2000
+            });
+        }
+        
+    } catch (error) {
+        console.error('Error applying filters:', error);
+        NotificationService.error('Error searching properties. Please try again.');
+        updateResults([]);
+        updateMarkers([]);
+    } finally {
+        hideLoadingOverlay();
+        this.state.isValidating = false;
+    }
+}
+
+
     
         // Validación de filtros mínimos solo si no hay MLS ID
         // No contamos los filtros avanzados para la validación mínima
