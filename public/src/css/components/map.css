@@ -1,0 +1,143 @@
+/* Estilos del contenedor del mapa */
+.map-container {
+    width: 100%;
+    height: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--gray-200);
+}
+
+/* Controles del mapa */
+.leaflet-control-container .leaflet-control-zoom {
+    border: none;
+    margin: 1rem;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+    background: white !important;
+    border: none !important;
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 30px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    color: var(--gray-800) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.leaflet-control-zoom-in:hover,
+.leaflet-control-zoom-out:hover {
+    background: var(--gray-100) !important;
+    color: var(--teal) !important;
+}
+
+/* Marcador personalizado */
+.custom-marker {
+    width: 32px;
+    height: 32px;
+    position: relative;
+}
+
+.marker-pin {
+    width: 20px;
+    height: 20px;
+    border-radius: 50% 50% 50% 0;
+    background: var(--teal);
+    transform: rotate(-45deg);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -15px 0 0 -15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.marker-pin::after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+}
+
+/* Popup del mapa */
+.leaflet-popup {
+    margin-bottom: 20px;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.leaflet-popup-content {
+    margin: 0;
+    width: 250px !important;
+}
+
+.map-popup {
+    padding: 1rem;
+}
+
+.map-popup h4 {
+    color: var(--teal);
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+}
+
+.map-popup p {
+    color: var(--gray-800);
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+/* Botón de vista del mapa */
+.view-map-btn {
+    display: inline-block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    color: var(--teal);
+    text-decoration: none;
+    border: 1px solid var(--teal);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.view-map-btn:hover {
+    background: var(--teal);
+    color: white;
+}
+
+/* Atribución del mapa */
+.leaflet-container .leaflet-control-attribution {
+    background: rgba(255,255,255,0.8);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .map-container {
+        height: 250px;
+    }
+
+    .leaflet-control-zoom {
+        display: none;
+    }
+
+    .view-map-btn {
+        padding: 0.625rem 1rem;
+    }
+}
