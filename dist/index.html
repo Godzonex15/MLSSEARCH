@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Explorer - Baja Sur Realtors</title>
+    
+    <!-- Bootstrap desde CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.css">
+    
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS principal generado -->
+    <link rel="stylesheet" href="mls-interface.css">
+</head>
+<body>
+    <div class="split-view-container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <!-- Search Container -->
+            <div class="search-container glass-morphism">
+                <!-- MLS Search Section -->
+                <div class="mls-search-section">
+                    <div class="filter-group">
+                        <label for="mlsSearch">Search by MLS ID</label>
+                        <div class="mls-search-container">
+                            <i class="fas fa-search mls-search-icon"></i>
+                            <input type="text" 
+                                   id="mlsSearch" 
+                                   class="mls-search-input" 
+                                   placeholder="Enter Property ID..."
+                                   aria-label="Search by Property ID">
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Basic Filters Form -->
+                <form class="basic-filters" onsubmit="event.preventDefault(); FilterService.applyFilters();">
+                    <div class="filter-row">
+                        <!-- Property Type Filter -->
+                        <div class="filter-group">
+                            <label for="propertyType">Property Type</label>
+                            <select id="propertyType" class="filter-select">
+                                <!-- Options filled by JavaScript -->
+                            </select>
+                        </div>
+            
+                        <!-- Location Filter -->
+                        <div class="filter-group">
+                            <label for="location">Location</label>
+                            <select id="location" class="filter-select">
+                                <!-- Options filled by JavaScript -->
+                            </select>
+                        </div>
+            
+                        <!-- Enhanced Price Range Filter -->
+                        <div class="filter-group price-range-group">
+                            <label for="priceRange">Price Range</label>
+                            <div class="price-select-container">
+                                <select id="priceRange" class="filter-select">
+                                    <!-- Options filled by JavaScript -->
+                                </select>
+                                <button type="button" 
+                                        class="price-slider-toggle" 
+                                        onclick="FilterService.togglePriceSlider()"
+                                        aria-label="Show price range slider">
+                                    <i class="fas fa-sliders-h"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Search and Clear Buttons -->
+                    <div class="search-buttons">
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <button type="button" class="clear-all-filters" onclick="FilterService.clearAllFilters()">
+                            <i class="fas fa-times"></i> Clear All
+                        </button>
+                    </div>
+                </form>
+            
+                <!-- Advanced Filters Toggle -->
+                <div class="advanced-filters-toggle">
+                    <button type="button" 
+                            class="toggle-btn" 
+                            onclick="FilterService.toggleAdvancedFilters()">
+                        <i class="fas fa-sliders-h"></i> Advanced Filters
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            
+                <!-- Advanced Filters Section -->
+                <div id="advancedFilters" class="advanced-filters">
+                    <!-- ... contenido de filtros avanzados ... -->
+                </div>
+            </div>
+
+            <!-- Active Filters Display -->
+            <div id="activeFilters" class="active-filters glass-morphism" style="display: none;">
+                <h6>Active Filters</h6>
+                <div id="filterTags" class="filter-tags"></div>
+            </div>
+
+            <!-- View Controls -->
+            <div class="view-controls-container glass-morphism">
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" onclick="changeView('list')">
+                        <i class="fas fa-list"></i> List
+                    </button>
+                    <button class="btn btn-outline-primary active" onclick="changeView('grid')">
+                        <i class="fas fa-th"></i> Grid
+                    </button>
+                </div>
+                <div class="results-count">
+                    <span id="resultsCount">0</span> properties found
+                </div>
+            </div>
+
+            <!-- Properties List Container -->
+            <div id="propertiesList" class="properties-container grid-layout"></div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <div id="map" class="map-container glass-morphism"></div>
+            <div id="selectedProperty" class="selected-property glass-morphism"></div>
+        </div>
+    </div>
+
+    <!-- Price Range Slider Modal -->
+    <div id="priceSliderModal" class="price-slider-modal">
+        <!-- ... contenido modal de precio ... -->
+    </div>
+
+    <!-- Property Modal -->
+    <div id="propertyModal" class="modal fade modal-property" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content glass-morphism">
+                <div id="propertyModalContent" class="modal-body p-0">
+                    <!-- Modal content will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.js"></script>
+    
+    <!-- Script principal generado -->
+    <script src="mls-interface.js"></script>
+</body>
+</html>
